@@ -60,6 +60,8 @@ FROM Person p1
 JOIN Person p2
 ON p1.Email = p2.Email AND p1.Id < p2.Id
 
+"""
+
 # 183. Customers Who Never Order
 1) left join, Runtime: 496 ms 
 SELECT Name AS Customers
@@ -73,3 +75,18 @@ SELECT Name AS Customers
 FROM Customers c
 WHERE Id NOT IN (SELECT CustomerId
                  FROM Orders);
+
+"""
+
+# 196. Delete Duplicate Emails
+/*
+DELETE p1 FROM Person p1, Person p2
+WHERE p1.Email = p2.Email
+AND p1.Id > p2.Id;
+*/
+
+DELETE FROM Person 
+WHERE Id NOT IN (SELECT t.Id
+                 FROM (SELECT MIN(Id) AS Id
+                       FROM Person 
+                       GROUP BY Email) t);
