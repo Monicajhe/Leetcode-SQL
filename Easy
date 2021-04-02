@@ -23,6 +23,7 @@ WHERE Salary < (SELECT MAX(Salary)
                 FROM Employee);
 
 """
+
 # 181. Employees Earning More Than Their Managers
 1) 
 /* self join */
@@ -41,3 +42,34 @@ WHERE e.Salary > m.Salary;
 """
 
 #182. Duplicate Emails
+1) fastest
+SELECT Email
+FROM Person
+GROUP BY Email
+HAVING COUNT(Id) > 1;
+
+2) self join 
+SELECT DISTINCT p1.Email
+FROM Person p1, Person p2
+WHERE p1.Email = p2.Email
+AND p1.Id < p2.Id
+
+3) inner join 
+SELECT DISTINCT p1.Email
+FROM Person p1
+JOIN Person p2
+ON p1.Email = p2.Email AND p1.Id < p2.Id
+
+# 183. Customers Who Never Order
+1) left join, Runtime: 496 ms 
+SELECT Name AS Customers
+FROM Customers c
+LEFT JOIN Orders o
+ON c.Id = o.CustomerId
+WHERE o.Id IS NULL;
+
+2) subquery, Runtime: 416 ms
+SELECT Name AS Customers
+FROM Customers c
+WHERE Id NOT IN (SELECT CustomerId
+                 FROM Orders);
