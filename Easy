@@ -79,12 +79,12 @@ WHERE Id NOT IN (SELECT CustomerId
 """
 
 # 196. Delete Duplicate Emails
-/*
+1) self-join: 1969 ms
 DELETE p1 FROM Person p1, Person p2
 WHERE p1.Email = p2.Email
 AND p1.Id > p2.Id;
-*/
 
+2)  using a middle table with select clause will solve the error 'Person' for update in FROM clause', Runtime: 1662 ms
 DELETE FROM Person 
 WHERE Id NOT IN (SELECT t.Id
                  FROM (SELECT MIN(Id) AS Id
