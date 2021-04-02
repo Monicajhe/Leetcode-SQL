@@ -79,14 +79,143 @@ WHERE Id NOT IN (SELECT CustomerId
 """
 
 # 196. Delete Duplicate Emails
-1) self-join: 1969 ms
+1) self-join, in multiple-table syntax, only matching rows from the tables listed before the FROM clause are deleted, 1969 ms
 DELETE p1 FROM Person p1, Person p2
 WHERE p1.Email = p2.Email
 AND p1.Id > p2.Id;
 
-2)  using a middle table with select clause will solve the error 'Person' for update in FROM clause', Runtime: 1662 ms
+2) using a middle table with select clause will solve the error 'Person' for update in FROM clause', Runtime: 1662 ms
+create the temporary table which is a copy of the original table. Without that my sql will use same copy of table and 
+it is problematic since inner select clause may use stale table data which has been deleted by outer query as the query is in progress.
 DELETE FROM Person 
 WHERE Id NOT IN (SELECT t.Id
                  FROM (SELECT MIN(Id) AS Id
                        FROM Person 
                        GROUP BY Email) t);
+"""                  
+                       
+# 197. Rising Temperature
+/* Alternative: DATE_SUB(w2.recordDate, INTERVAL 1 DAY) = w1.recordDate */
+SELECT DISTINCT w2.id 
+FROM Weather w1, weather w2
+WHERE DATEDIFF(w2.recordDate, w1.recordDate) = 1
+AND w2.temperature > w1.temperature;
+
+"""
+
+# 511. Game Play Analysis I
+
+SELECT player_id, MIN(event_date) AS first_login
+FROM Activity 
+GROUP BY player_id;
+
+"""
+
+# 512. Game Play Analysis II
+1) subquery match two columns
+SELECT player_id, device_id
+FROM Activity
+WHERE (player_id, event_date) IN (SELECT player_id, MIN(event_date)
+                                  FROM Activity
+                                  GROUP BY player_id)
+2) window function
+SELECT  DISTINCT player_id,
+        FIRST_VALUE(device_id) OVER(PARTITION BY player_id ORDER BY event_date ASC) AS device_id 
+FROM Activity 
+
+"""
+
+# 577. Employee Bonus
+/* Alternative: WHERE IFNULL(bonus, 0) < 1000
+SELECT name, bonus 
+FROM Employee
+LEFT JOIN bonus
+USING(empId)
+WHERE bonus < 1000
+OR bonus IS NULL;
+
+"""
+
+# 584. Find Customer Referee
+
+SELECT name
+FROM customer 
+WHERE referee_id <> 2
+OR referee_id IS NULL;
+
+"""
+
+# 586. Customer Placing the Largest Number of Orders
+1) Mulptile max customers, will return null 
+WITH t AS (SELECT COUNT(order_number) AS order_count
+           FROM Orders
+           GROUP BY customer_number)
+           
+SELECT customer_number
+FROM Orders
+GROUP BY customer_number 
+HAVING COUNT(order_number) = (SELECT MAX(order_count)
+                              FROM t)
+
+2) It is guaranteed that exactly one customer will have placed more orders than any other customer.
+SELECT customer_number
+FROM Orders
+GROUP BY customer_number 
+ORDER BY COUNT(DISTINCT order_number) DESC
+
+3)
+SELECT customer_number
+FROM orders
+GROUP BY customer_number
+HAVING COUNT(DISTINCT order_number) >= ALL(SELECT COUNT(customer_number)
+                                           FROM orders
+                                           GROUP BY customer_number)
+                                           
+"""
+
+# 595. Big Countries
+
+SELECT name, population, area
+FROM World
+WHERE area > 3000000 OR population > 25000000;
+
+"""
+
+# 596. Classes More Than 5 Students
+
+SELECT class
+FROM courses
+GROUP BY class
+HAVING COUNT(DISTINCT student) >= 5;
+
+"""
+
+# 597. Friend Requests I: Overall Acceptance Rate
+
+SELECT 
+IFNULL(ROUND(COUNT(DISTINCT requester_id, accepter_id) / COUNT(DISTINCT sender_id, send_to_id), 2), 0.00) AS accept_rate
+FROM FriendRequest, RequestAccepted;
+
+"""
+
+# 603. Consecutive Available Seats
+
+1)
+SELECT seat_id 
+FROM cinema
+WHERE free = 1
+AND 
+(seat_id - 1 IN (SELECT seat_id
+                   FROM cinema
+                   WHERE free= 1)
+OR seat_id + 1 IN (SELECT seat_id
+                   FROM cinema
+                   WHERE free= 1));
+
+2) self join, alternaive: ABS(a.seat_id - b.seat_id) = 1
+SELECT DISTINCT a.seat_id
+FROM cinema a, cinema b
+WHERE (a.seat_id = b.seat_id + 1 OR a.seat_id = b.seat_id - 1)
+AND (a.free = 1 AND b.free = 1)
+
+                                  
