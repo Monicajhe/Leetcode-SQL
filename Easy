@@ -218,4 +218,88 @@ FROM cinema a, cinema b
 WHERE (a.seat_id = b.seat_id + 1 OR a.seat_id = b.seat_id - 1)
 AND (a.free = 1 AND b.free = 1)
 
+3)
+WITH t AS (SELECT seat_id,
+                  free,
+                  LAG(free, 1) OVER (ORDER BY seat_id) as lag_free,
+                  LEAD(free, 1) OVER (ORDER BY seat_id) as lead_free
+           FROM cinema)
+SELECT seat_id
+FROM t 
+WHERE (free = 1 AND lag_free = 1)
+OR (free = 1 AND lead_free = 1)
+ORDER BY seat_id;
+
+"""
+
+# 607. Sales Person
+
+1)
+SELECT name 
+FROM salesperson 
+WHERE sales_id NOT IN (SELECT sales_id
+                       FROM orders 
+                       JOIN company USING (com_id)
+                       WHERE name = 'RED')
+
+2)
+SELECT s.name
+FROM company c 
+JOIN orders o
+ON c.com_id = o.com_id AND c.name = 'RED'
+RIGHT JOIN salesperson s 
+USING (sales_id)
+WHERE o.sales_id IS NULL;
                                   
+"""
+
+# 610. Triangle Judgement
+1)
+SELECT x, y, z, 
+       CASE WHEN x + y > z AND x + z > y AND z + y > x THEN 'Yes' ELSE 'No' END AS triangle
+FROM triangle 
+
+2) 
+SELECT x,y,z, IF(x+y>z and y+z>x and x+z>y, 'Yes', 'No') as 'triangle'
+FROM triangle;
+
+"""
+
+# 613. Shortest Distance in a Line
+1)
+SELECT MIN(ABS(a.x - b.x)) AS shortest
+FROM point a, point b 
+WHERE a.x != b.x;
+
+2)
+SELECT MIN(a.x - b.x) AS shortest
+FROM point a, point b
+WHERE a.x > b.x;
+
+"""
+
+# 619. Biggest Single Number
+
+1) faster than 3)
+SELECT MAX(num) as num
+FROM (SELECT num
+      FROM my_numbers 
+      GROUP BY num
+      HAVING COUNT(num) = 1) t
+
+2)
+SELECT IFNULL((SELECT num
+       FROM my_numbers 
+       GROUP BY num
+       HAVING COUNT(num) = 1
+       ORDER BY num DESC 
+       LIMIT 1), NULL) num;
+
+3)
+WITH t AS(
+    SELECT num
+    FROM my_numbers 
+    GROUP BY num
+    HAVING COUNT(*) = 1)
+SELECT MAX(num) AS num
+FROM t;
