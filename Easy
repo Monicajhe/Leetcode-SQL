@@ -465,3 +465,175 @@ JOIN Product
 USING(product_id)
 GROUP BY product_id
 HAVING MIN(sale_date) >= '2019-01-01' AND MAX(sale_date) <= '2019-03-31' 
+
+"""
+
+# 1113. Reported Posts
+
+SELECT extra AS report_reason, COUNT(DISTINCT post_id) AS report_count
+FROM Actions
+WHERE action_date = '2019-07-04' AND extra IS NOT NULL AND action = 'report'
+GROUP BY report_reason 
+
+"""
+
+# 1141. User Activity for the Past 30 Days I
+
+SELECT activity_date AS day, COUNT(DISTINCT user_id) AS active_users 
+FROM Activity
+WHERE activity_date BETWEEN SUBDATE('2019-07-27', INTERVAL 29 DAY) AND '2019-07-27'
+GROUP BY activity_date;
+
+"""
+
+# 1142. User Activity for the Past 30 Days II
+
+SELECT IFNULL(ROUND(COUNT(DISTINCT session_id) / COUNT(DISTINCT user_id), 2), 0.00) AS average_sessions_per_user
+FROM Activity
+WHERE activity_date BETWEEN SUBDATE('2019-07-27', INTERVAL 29 DAY) AND '2019-07-27'
+
+"""
+
+# 1148. Article Views I
+
+SELECT DISTINCT author_id AS id
+FROM Views
+WHERE author_id = viewer_id
+ORDER BY author_id;
+
+"""
+
+# 1173. Immediate Food Delivery I
+
+1)
+SELECT ROUND(100 * COUNT(DISTINCT delivery_id) / (SELECT COUNT(delivery_id) FROM Delivery), 2) AS immediate_percentage 
+FROM Delivery
+WHERE order_date = customer_pref_delivery_date
+
+2)
+SELECT ROUND(100 * SUM(IF(order_date = customer_pref_delivery_date, 1, 0)) / COUNT(delivery_id), 2) AS immediate_percentage
+FROM Delivery
+
+3)
+select round(100 * sum(order_date = customer_pref_delivery_date) / count(*), 2) as immediate_percentage from Delivery;
+
+"""
+
+# 1179. Reformat Department Table
+
+SELECT id, MIN(IF(month = 'Jan', revenue, NULL)) AS Jan_Revenue,
+           MIN(IF(month = 'Feb', revenue, NULL)) AS Feb_Revenue,
+           MIN(IF(month = 'Mar', revenue, NULL)) AS Mar_Revenue,
+           MIN(IF(month = 'Apr', revenue, NULL)) AS Apr_Revenue,
+           MIN(IF(month = 'May', revenue, NULL)) AS May_Revenue,
+           MIN(IF(month = 'Jun', revenue, NULL)) AS Jun_Revenue,
+           MIN(IF(month = 'Jul', revenue, NULL)) AS Jul_Revenue,
+           MIN(IF(month = 'Aug', revenue, NULL)) AS Aug_Revenue,
+           MIN(IF(month = 'Sep', revenue, NULL)) AS Sep_Revenue,
+           MIN(IF(month = 'Oct', revenue, NULL)) AS Oct_Revenue,
+           MIN(IF(month = 'Nov', revenue, NULL)) AS Nov_Revenue,
+           MIN(IF(month = 'Dec', revenue, NULL)) AS Dec_Revenue
+FROM Department
+GROUP BY id;
+
+"""
+
+# 1211. Queries Quality and Percentage
+
+SELECT query_name, 
+       ROUND(AVG(rating / position), 2) AS quality,
+       ROUND(100 * SUM(rating < 3)/ COUNT(query_name), 2) AS poor_query_percentage 
+FROM Queries
+GROUP BY query_name
+
+"""
+
+# 1241. Number of Comments per Post
+
+SELECT s.sub_id AS post_id,
+       (SELECT COUNT(DISTINCT sub_id)
+       FROM Submissions s1
+       WHERE s.sub_id = s1.parent_id) AS number_of_comments
+FROM Submissions s
+WHERE s.parent_id IS NULL
+GROUP BY s.sub_id
+ORDER BY post_id; 
+
+"""
+
+# 1251. Average Selling Price
+
+SELECT Prices.product_id, ROUND(SUM(Prices.price * units) / SUM(units), 2) AS average_price
+FROM Prices 
+JOIN UnitsSold 
+ON Prices.product_id = UnitsSold.product_id AND purchase_date BETWEEN start_date AND end_date 
+GROUP BY product_id;
+
+or 
+
+SELECT product_id, ROUND(SUM(price * units) / SUM(units), 2) AS average_price
+FROM Prices 
+JOIN UnitsSold USING (product_id)
+WHERE purchase_date BETWEEN start_date AND end_date
+GROUP BY product_id;
+
+"""
+
+# 1280. Students and Examinations
+
+1)
+SELECT student.student_id,student.student_name,subject.subject_name,COUNT(exam.subject_name) as attended_exams
+FROM Students as student
+JOIN Subjects as subject
+LEFT JOIN Examinations as exam
+ON student.student_id=exam.student_id AND subject.subject_name=exam.subject_name
+GROUP BY student.student_id,subject.subject_name
+ORDER BY student_id,subject_name;
+
+2) 
+SELECT t.student_id, t.student_name, t.subject_name, COUNT(e.subject_name) AS attended_exams
+FROM (SELECT *
+      FROM Students
+      CROSS JOIN Subjects) t
+LEFT JOIN Examinations e
+USING (student_id, subject_name)
+GROUP BY 1, 2, 3
+ORDER BY 1, 3
+
+"""
+
+# 1294. Weather Type in Each Country
+
+SELECT country_name,
+       CASE WHEN AVG(weather_state) <= 15 THEN 'Cold'
+            WHEN AVG(weather_state) >= 25 THEN 'Hot'
+            ELSE 'Warm' END AS weather_type
+FROM Countries
+JOIN Weather USING (country_id)
+WHERE day LIKE '2019-11%'
+GROUP BY country_name
+
+"""
+
+# 1303. Find the Team Size
+1)
+SELECT employee_id, team_size
+FROM Employee
+JOIN (SELECT team_id, COUNT(employee_id) AS team_size
+      FROM Employee
+      GROUP BY team_id) t
+USING (team_id)
+2)
+SELECT employee_id, 
+       COUNT(team_id) OVER(PARTITION BY team_id) AS team_size
+FROM Employee
+
+"""
+
+# 1322. Ads Performance
+
+
+
+"""
+
+# 
