@@ -1,1 +1,1 @@
-Leetcode SQL questions three levels: easy, medium and hard 
+Leetcode SQL questions three levels: easy and medium 
