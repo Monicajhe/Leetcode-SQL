@@ -887,3 +887,32 @@ order by seller_name
 """
 
 # 1623. All Valid Triplets That Can Represent a Country
+1)
+SELECT a.student_name AS member_A,
+       b.student_name AS member_B,
+       c.student_name AS member_C
+FROM SchoolA a 
+CROSS JOIN SchoolB b
+CROSS JOIN SchoolC c 
+WHERE a.student_name != b.student_name 
+AND a.student_name != c.student_name 
+AND c.student_name != b.student_name
+AND a.student_id != b.student_id
+AND a.student_id != c.student_id
+AND b.student_id != c.student_id;
+2)
+SELECT a.student_name AS member_A, b.student_name AS member_B, c.student_name AS member_C
+FROM SchoolA a, SchoolB b, SchoolC c
+WHERE a.student_id != b.student_id AND a.student_id != c.student_id AND b.student_id != c.student_id
+AND a.student_name != b.student_name AND a.student_name != c.student_name AND b.student_name != c.student_name
+
+"""
+
+# 1633. Percentage of Users Attended a Contest
+
+SELECT contest_id, ROUND(100 * COUNT(user_id)/(SELECT COUNT(*)
+                                   FROM users), 2) AS percentage
+FROM Users
+JOIN Register USING (user_id)
+GROUP BY contest_id 
+ORDER BY percentage DESC, contest_id
