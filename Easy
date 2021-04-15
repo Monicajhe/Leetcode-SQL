@@ -989,3 +989,52 @@ FROM Employees e1
 JOIN Employees e2 ON e1.reports_to = e2.employee_id
 GROUP BY e1.reports_to, e2.name
 ORDER BY e1.reports_to;
+
+"""
+
+# 1741. Find Total Time Spent by Each Employee
+
+SELECT event_day AS day, emp_id, SUM(out_time - in_time) AS total_time
+FROM Employees
+GROUP BY event_day, emp_id;
+
+"""
+
+# 1757. Recyclable and Low Fat Products
+
+SELECT product_id
+FROM Products
+WHERE low_fats = 'Y' AND recyclable = 'Y';
+
+"""
+
+# 1777. Product's Price for Each Store
+
+SELECT product_id, 
+       MAX(IF(store = 'store1', price, NULL)) AS store1,
+       MAX(IF(store = 'store2', price, NULL)) AS store2,
+       MAX(IF(store = 'store3', price, NULL)) AS store3
+FROM Products
+GROUP BY product_id
+
+"""
+
+# 1789. Primary Department for Each Employee
+
+1)
+SELECT employee_id, department_id 
+FROM Employee 
+WHERE primary_flag = 'Y'
+OR employee_id IN (SELECT employee_id
+                   FROM Employee 
+                   GROUP BY employee_id
+                   HAVING COUNT(employee_id) = 1)
+2)                 
+SELECT employee_id, department_id 
+FROM Employee 
+WHERE primary_flag = 'Y'
+UNION
+SELECT employee_id, department_id 
+FROM Employee 
+GROUP BY employee_id
+HAVING COUNT(employee_id) = 1
