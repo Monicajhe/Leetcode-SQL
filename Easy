@@ -1038,3 +1038,38 @@ SELECT employee_id, department_id
 FROM Employee 
 GROUP BY employee_id
 HAVING COUNT(employee_id) = 1
+
+"""
+
+# 1795. Rearrange Products Table
+
+SELECT product_id, 'store1' AS store, store1 AS price
+FROM Products
+WHERE store1 IS NOT NULL
+UNION
+SELECT product_id, 'store2' AS store, store2 AS price
+FROM Products
+WHERE store2 IS NOT NULL
+UNION
+SELECT product_id, 'store3' AS store, store3 AS price
+FROM Products
+WHERE store3 IS NOT NULL
+ORDER BY product_id;
+
+"""
+
+# 1809. Ad-Free Sessions
+
+SELECT p.session_id
+FROM Playback p
+LEFT JOIN Ads a
+ON p.customer_id = a.customer_id AND timestamp BETWEEN start_time AND end_time
+WHERE ad_id IS NULL;
+
+"""
+
+# 1821. Find Customers With Positive Revenue this Year
+
+SELECT customer_id
+FROM Customers
+WHERE year = 2021 AND revenue > 0;
