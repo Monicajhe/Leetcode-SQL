@@ -1,1 +1,31 @@
+# 177. Nth Highest Salary
+1) https://leetcode.com/problems/nth-highest-salary/discuss/1013080/Mysql-%3A-Order-by-Limit
+CREATE FUNCTION getNthHighestSalary(N INT) RETURNS INT
+BEGIN
+SET N = N - 1;
+  RETURN (
+      # Write your MySQL query statement below.
+      SELECT DISTINCT Salary
+      FROM Employee 
+      ORDER BY Salary DESC
+      LIMIT 1 OFFSET N
+  );
+END
+2)
+CREATE FUNCTION getNthHighestSalary(N INT) RETURNS INT
+BEGIN
+  RETURN (
+      # Write your MySQL query statement below.
+      SELECT DISTINCT Salary
+      FROM (SELECT Salary, DENSE_RANK() OVER (ORDER BY Salary DESC) AS rnk
+            FROM Employee) t
+      WHERE N = rnk
+  );
+END
+
+"""
+
+# 178. Rank Scores
+
+
 
