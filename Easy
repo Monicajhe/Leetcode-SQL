@@ -971,4 +971,21 @@ SELECT date_id, make_name, COUNT(DISTINCT lead_id) AS unique_leads, COUNT(DISTIN
 FROM DailySales 
 GROUP BY date_id, make_name 
 
+"""
 
+# 1729. Find Followers Count
+
+SELECT user_id, COUNT(DISTINCT follower_id) AS followers_count
+FROM Followers
+GROUP BY user_id
+ORDER BY user_id;
+
+"""
+
+# 1731. The Number of Employees Which Report to Each Employee
+
+SELECT e1.reports_to AS employee_id, e2.name, COUNT(e1.employee_id) AS reports_count, ROUND(AVG(e1.age)) AS average_age
+FROM Employees e1
+JOIN Employees e2 ON e1.reports_to = e2.employee_id
+GROUP BY e1.reports_to, e2.name
+ORDER BY e1.reports_to;
