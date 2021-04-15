@@ -916,3 +916,59 @@ FROM Users
 JOIN Register USING (user_id)
 GROUP BY contest_id 
 ORDER BY percentage DESC, contest_id
+
+"""
+
+# 1661. Average Time of Process per Machine
+option: or use CASE WHEN 
+SELECT machine_id, ROUND(SUM(IF(activity_type = 'end', timestamp, -timestamp))/COUNT(DISTINCT process_id), 3) AS processing_time
+FROM Activity 
+GROUP BY machine_id
+
+"""
+
+# 1667. Fix Names in a Table
+
+SELECT user_id, CONCAT(UPPER(LEFT(name, 1)), LOWER(RIGHT(name, LENGTH(name) - 1))) AS name
+FROM Users
+ORDER BY user_id;
+
+"""
+
+# 1677. Product's Worth Over Invoices
+1)
+SELECT name, IFNULL(SUM(rest), 0) AS rest, IFNULL(SUM(paid), 0) AS paid, IFNULL(SUM(canceled), 0) AS canceled, IFNULL(SUM(refunded), 0) AS refunded
+FROM Product 
+LEFT JOIN Invoice
+USING (product_id)
+GROUP BY name
+ORDER BY name;
+2)
+select
+p.name name,
+sum(coalesce(i.rest,0)) rest,
+sum(coalesce(i.paid,0)) paid,
+sum(coalesce(i.canceled,0)) canceled,
+sum(coalesce(i.refunded,0)) refunded
+from product p
+left join invoice i
+on p.product_id = i.product_id
+group by p.name
+
+"""
+
+# 1683. Invalid Tweets
+
+SELECT tweet_id
+FROM Tweets
+WHERE LENGTH(content) > 15;
+
+"""
+
+# 1693. Daily Leads and Partners
+
+SELECT date_id, make_name, COUNT(DISTINCT lead_id) AS unique_leads, COUNT(DISTINCT partner_id) AS unique_partners
+FROM DailySales 
+GROUP BY date_id, make_name 
+
+
