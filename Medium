@@ -56,6 +56,8 @@ FROM (SELECT Id, Num,
       FROM Logs) t
 WHERE Num = Num_before AND Num = Num_after;
 
+"""
+
 184. Department Highest Salary
 1)
 SELECT Department, Employee, Salary
@@ -85,5 +87,129 @@ and emp.Salary=(Select max(Salary) from Employee e2 where e2.DepartmentId=dep.Id
 """
 
 # 534. Game Play Analysis III
+1)
+SELECT player_id, 
+       event_date, 
+       SUM(games_played) OVER (PARTITION BY player_id ORDER BY event_date) AS games_played_so_far
+FROM Activity;
+2)
+select player_id, 
+       event_date, 
+       (select sum(games_played) 
+       from Activity 
+       where player_id = a.player_id and event_date<=a.event_date) as "games_played_so_far"
+from Activity a
+3)
+select a1.player_id, a1.event_date, sum(a2.games_played) as "games_played_so_far"
+from
+Activity a1 left join Activity a2
+on a1.player_id = a2.player_id 
+and a2.event_date<=a1.event_date
+group by a1.player_id, a1.event_date
+4)
+select a1.player_id, a1.event_date, sum(a2.games_played) as games_played_so_far
+from Activity a1, Activity a2
+where a1.player_id = a2.player_id and a2.event_date <= a1.event_date
+group by a1.player_id, a1.event_date
+order by a1.player_id, a1.event_date
 
+"""
 
+# 550. Game Play Analysis IV
+1) https://leetcode.com/problems/game-play-analysis-iv/discuss/508062/MySQL-Without-JOIN-with-Explanation
+SELECT ROUND(COUNT(DISTINCT player_id) / (SELECT COUNT(DISTINCT player_id) FROM Activity), 2) AS fraction
+FROM activity
+WHERE (player_id, SUBDATE(event_date, 1)) IN (SELECT player_id, MIN(event_date) 
+                                              FROM Activity
+                                              GROUP BY player_id)
+2) https://leetcode.com/problems/game-play-analysis-iv/discuss/324851/MySQL-solution-with-STEP-BY-STEP-explanation
+SELECT ROUND(SUM(CASE WHEN a.event_date + 1 = b.event_date THEN 1 ELSE 0 END)/COUNT(DISTINCT a.player_id), 2) AS fraction 
+FROM (SELECT player_id, MIN(event_date) AS event_date
+      FROM Activity 
+      GROUP BY player_id) AS a 
+JOIN Activity AS b 
+ON a.player_id = b.player_id
+3) https://leetcode.com/problems/game-play-analysis-iv/discuss/995878/Using-LEAD-Straight-solution
+SELECT ROUND(COUNT(DISTINCT player_id) / (SELECT COUNT(DISTINCT player_id) FROM Activity), 2) AS fraction
+FROM (SELECT player_id, 
+      MIN(event_date) OVER (PARTITION BY player_id) AS first_date, 
+      LEAD(event_date, 1) OVER (PARTITION BY player_id ORDER BY event_date) AS date_after
+      FROM Activity) t
+WHERE date_after - first_date = 1
+
+"""
+
+# 570. Managers with at Least 5 Direct Reports
+1)
+SELECT DISTINCT e.Name
+FROM Employee e
+JOIN (SELECT ManagerId, COUNT(Id) OVER (PARTITION BY ManagerId) AS num
+      FROM Employee) t
+ON t.ManagerId = e.Id
+WHERE num >= 5
+2)
+SELECT Name
+FROM Employee
+WHERE Id IN (SELECT ManagerId
+             FROM Employee
+             GROUP BY ManagerId
+             HAVING COUNT(Id) >= 5);
+3)
+SELECT e2.Name
+FROM Employee e1 
+JOIN Employee e2
+ON e1.managerId = e2.Id
+GROUP BY e1.managerId
+HAVING COUNT(e1.managerId)>=5
+
+"""
+
+# 574. Winning Candidate
+1)
+SELECT c.Name
+FROM Candidate c
+JOIN (SELECT CandidateId, COUNT(*) AS num
+      FROM Vote
+      GROUP BY CandidateId
+      ORDER BY num DESC
+      LIMIT 1) t
+ON c.id = t.CandidateId;
+2)
+SELECT c.Name
+FROM Candidate c
+JOIN (SELECT CandidateId, 
+             COUNT(CandidateId) OVER (PARTITION BY CandidateId) AS num
+      FROM Vote) t
+ON c.id = t.CandidateId
+ORDER BY num DESC
+LIMIT 1;
+
+"""
+
+# 578. Get Highest Answer Rate Question
+
+SELECT question_id AS survey_log
+FROM survey_log
+GROUP BY question_id
+ORDER BY SUM(action = 'answer') / COUNT(*) DESC
+LIMIT 1;
+
+"""
+
+# 580. Count Student Number in Departments
+1)
+SELECT dept_name, COUNT(student_id) AS student_number
+FROM department
+LEFT JOIN student 
+USING (dept_id)
+GROUP BY dept_name
+ORDER BY 2 DESC, 1
+2) https://leetcode.com/problems/count-student-number-in-departments/discuss/734641/MySQL%3A-Using-SUM(CASE-WHEN...)-instead-of-COUNT
+SELECT dept_name, SUM(CASE WHEN s.dept_id THEN 1 ELSE 0 END) as student_number
+FROM department d LEFT JOIN student s ON d.dept_id = s.dept_id
+GROUP BY 1
+ORDER BY 2 desc, 1
+
+"""
+
+# 585. Investments in 2016
