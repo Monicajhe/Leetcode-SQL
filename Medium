@@ -213,3 +213,84 @@ ORDER BY 2 desc, 1
 """
 
 # 585. Investments in 2016
+1)
+SELECT SUM(TIV_2016) AS TIV_2016
+FROM insurance
+WHERE TIV_2015 IN (SELECT TIV_2015
+                   FROM insurance
+                   GROUP BY TIV_2015
+                   HAVING COUNT(TIV_2015) > 1)
+AND (LAT, LON) IN (SELECT LAT, LON
+                  FROM insurance
+                  GROUP BY LAT, LON
+                  HAVING COUNT(*) = 1)
+2)
+SELECT SUM(TIV_2016) AS TIV_2016
+FROM
+(SELECT *,
+COUNT(*) OVER(PARTITION BY TIV_2015) AS CNT1,
+COUNT(*) OVER(PARTITION BY LAT, LON) AS CNT2
+FROM INSURANCE
+) t
+WHERE CNT1 > 1 AND CNT2 = 1
+
+"""
+
+# 602. Friend Requests II: Who Has the Most Friends
+
+SELECT id1 AS id, COUNT(*) AS num
+FROM (
+    SELECT requester_id AS id1, accepter_id AS id2
+    FROM request_accepted
+    UNION 
+    SELECT accepter_id AS id1, requester_id AS id2
+    FROM request_accepted
+    ) t
+GROUP BY id1
+ORDER BY num DESC
+LIMIT 1;
+
+# 608. Tree Node
+1) https://leetcode.com/problems/tree-node/discuss/219003/Need-help-!!-what's-wrong-with-my-code
+SELECT id, CASE WHEN p_id IS NULL THEN 'Root'
+                WHEN id NOT IN (SELECT DISTINCT p_id 
+                                FROM tree
+                                WHERE p_id IS NOT NULL) THEN 'Leaf'
+                ELSE 'Inner' END AS Type
+FROM tree
+2) https://leetcode.com/problems/tree-node/discuss/104112/Solution-with-explanation%3A-CASE-%2B-LEFT-JOIN
+SELECT DISTINCT t1.id, (
+    CASE
+    WHEN t1.p_id IS NULL  THEN 'Root'
+    WHEN t1.p_id IS NOT NULL AND t2.id IS NOT NULL THEN 'Inner'
+    WHEN t1.p_id IS NOT NULL AND t2.id IS NULL THEN 'Leaf'
+    END
+) AS Type 
+FROM tree t1
+LEFT JOIN tree t2
+ON t1.id = t2.p_id
+3)
+select id,
+case when p_id is null then 'Root'
+when id in (select distinct p_id from tree) then 'Inner'
+else 'Leaf'
+end as 'Type'
+from tree
+
+"""
+
+# 612. Shortest Distance in a Plane
+1)
+SELECT ROUND(MIN(SQRT(POWER(x1 - x2, 2) + POWER(y1 - y2, 2))), 2) AS shortest
+FROM (SELECT p1.x AS x1, p2.x AS x2, p1.y AS y1, p2.y AS y2
+      FROM point_2d p1
+      CROSS JOIN point_2d p2
+      WHERE (p1.x, p1.y) != (p2.x, p2.y)) t
+2)
+SELECT ROUND(MIN(SQRT(POWER(p1.x - p2.x, 2) + POWER(p1.y - p2.y, 2))), 2) AS shortest
+FROM point_2d p1,point_2d p2
+WHERE (p1.x, p1.y) != (p2.x, p2.y) 
+
+"""
+
+# 
