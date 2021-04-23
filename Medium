@@ -337,3 +337,88 @@ HAVING COUNT(DISTINCT product_key) = (SELECT COUNT(*) FROM Product)
 """
 
 # 1070. Product Sales Analysis III
+1)
+SELECT product_id, year AS first_year, quantity, price
+FROM Sales
+WHERE (product_id, year) IN (SELECT product_id, MIN(year) 
+                             FROM Sales
+                             GROUP BY product_id);
+2)
+SELECT product_id, year AS first_year, quantity, price
+FROM (SELECT *, RANK() OVER (PARTITION BY product_id ORDER BY year) AS rnk
+      FROM Sales) t
+WHERE rnk = 1;
+
+"""
+
+# 1077. Project Employees III
+1)
+WITH t AS (SELECT project_id, 
+                  employee_id,
+                  RANK() OVER (PARTITION BY project_id ORDER BY experience_years DESC) AS rnk
+           FROM Project
+           JOIN Employee 
+           USING (employee_id))
+
+SELECT project_id, employee_id
+FROM t
+WHERE rnk = 1;
+2)
+SELECT project_id, employee_id 
+FROM Project 
+JOIN Employee
+USING (employee_id)
+WHERE (project_id, experience_years) IN (SELECT project_id, MAX(experience_years)
+                                         FROM Project
+                                         JOIN Employee
+                                         USING (employee_id)
+                                         GROUP BY project_id);
+
+"""
+
+# 1098. Unpopular Books
+1)
+SELECT book_id, 
+       name
+FROM Books
+WHERE available_from < '2019-05-23'
+AND book_id NOT IN
+            (SELECT book_id
+             FROM Orders
+             WHERE dispatch_date BETWEEN '2018-06-23' AND '2019-06-23'
+             GROUP BY book_id
+             Having sum(quantity) >= 10)
+2)
+SELECT b.book_id, b.name
+FROM Books b
+LEFT JOIN Orders o
+ON b.book_id = o.book_id AND dispatch_date BETWEEN '2018-06-23' AND '2019-06-23'
+WHERE DATEDIFF('2019-06-23', available_from) > 30
+GROUP BY b.book_id, b.name
+HAVING IFNULL(SUM(quantity), 0) < 10;
+
+"""
+
+# 1107. New Users Daily Count
+1)
+SELECT first_login AS login_date, COUNT(user_id) AS user_count
+FROM (SELECT user_id, MIN(activity_date) as first_login
+      FROM Traffic
+      WHERE activity = 'login' 
+      GROUP BY user_id) t
+WHERE DATEDIFF('2019-06-30', first_login) <= 90
+GROUP BY login_date;
+2)
+SELECT min_date AS login_date, COUNT(DISTINCT user_id) AS user_count
+FROM (SELECT *, 
+             MIN(activity_date) OVER (PARTITION BY user_id) AS min_date
+      FROM Traffic
+      WHERE activity = 'login') t
+WHERE DATEDIFF('2019-06-30', min_date) <= 90
+GROUP BY 1;
+
+"""
+
+# 1112. Highest Grade For Each Student
+
+
