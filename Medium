@@ -293,4 +293,47 @@ WHERE (p1.x, p1.y) != (p2.x, p2.y)
 
 """
 
-# 
+# 614. Second Degree Follower
+1)
+SELECT f1.follower, COUNT(DISTINCT f2.follower) AS num
+FROM follow f1, follow f2
+WHERE f1.follower = f2.followee
+GROUP BY f1.follower
+ORDER BY 1;
+2)
+SELECT followee AS follower, COUNT(DISTINCT follower) AS num
+FROM follow
+WHERE followee IN (SELECT DISTINCT follower
+                   FROM follow)
+GROUP BY followee
+ORDER BY followee;
+
+"""
+
+# 626. Exchange Seats
+1)
+SELECT (CASE WHEN id % 2 = 0 THEN id - 1 
+             WHEN id % 2 = 1 AND id != (SELECT COUNT(*) FROM seat) THEN id + 1
+             ELSE id END) AS id,
+        student
+FROM seat 
+ORDER BY id;
+2)
+SELECT id,
+       IFNULL((CASE WHEN id % 2 = 1 THEN LEAD(student, 1) OVER (ORDER BY id)
+             ELSE LAG(student, 1) OVER (ORDER BY id) END), student) AS student 
+FROM seat 
+ORDER BY id;
+
+"""
+
+# 1045. Customers Who Bought All Products
+
+SELECT customer_id
+FROM Customer
+GROUP BY customer_id
+HAVING COUNT(DISTINCT product_key) = (SELECT COUNT(*) FROM Product)
+
+"""
+
+# 1070. Product Sales Analysis III
