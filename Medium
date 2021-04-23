@@ -420,5 +420,21 @@ GROUP BY 1;
 """
 
 # 1112. Highest Grade For Each Student
+1)
+SELECT student_id, MIN(course_id) AS course_id, grade
+FROM Enrollments
+WHERE (student_id, grade) IN (SELECT student_id, MAX(grade)
+                              FROM Enrollments
+                              GROUP BY student_id)
+GROUP BY student_id, grade
+ORDER BY 1;
+2)
+SELECT student_id, course_id, grade
+FROM (SELECT *, 
+      RANK() OVER (PARTITION BY student_id ORDER BY grade DESC, course_id ASC) AS rnk
+      FROM Enrollments) t
+WHERE rnk = 1;
 
+"""
 
+# 
