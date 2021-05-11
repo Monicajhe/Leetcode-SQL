@@ -187,7 +187,16 @@ GROUP BY customer_number
 HAVING COUNT(DISTINCT order_number) >= ALL(SELECT COUNT(customer_number)
                                            FROM orders
                                            GROUP BY customer_number)
-                                           
+ 
+4)
+WITH t AS (SELECT customer_number, 
+                  RANK() OVER (ORDER BY COUNT(order_number) DESC) AS rnk
+                  FROM Orders
+                  GROUP BY customer_number)
+SELECT customer_number
+FROM t 
+WHERE rnk = 1;
+
 """
 
 # 595. Big Countries
