@@ -128,6 +128,14 @@ SELECT  DISTINCT player_id,
         FIRST_VALUE(device_id) OVER(PARTITION BY player_id ORDER BY event_date ASC) AS device_id 
 FROM Activity 
 
+3)
+SELECT player_id, device_id
+FROM (SELECT player_id, 
+             device_id, 
+             RANK() OVER (PARTITION BY player_id ORDER BY event_date) AS rnk
+      FROM Activity) t
+WHERE rnk = 1;
+
 """
 
 # 577. Employee Bonus
