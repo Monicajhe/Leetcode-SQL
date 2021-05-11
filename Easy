@@ -10,10 +10,10 @@ USING (PersonId)
 # 176. Second Highest Salary
 1)
 /* the first select with out FROM is to return null if no match is found. Some databases may not support it. */
-SELECT(SELECT Distinct Salary 
-FROM Employee
-ORDER BY 1 DESC 
-LIMIT 1 OFFSET 1) AS SecondHighestSalary; 
+SELECT IFNULL((SELECT DISTINCT Salary 
+               FROM Employee 
+               ORDER BY Salary DESC
+               LIMIT 1, 1), null) AS SecondHighestSalary
 
 2)
 /* Using MAX() will return a NULL if the value doesn't exist. */
