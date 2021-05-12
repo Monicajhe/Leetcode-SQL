@@ -502,6 +502,15 @@ USING(product_id)
 GROUP BY product_id
 HAVING MIN(sale_date) >= '2019-01-01' AND MAX(sale_date) <= '2019-03-31' 
 
+4)
+SELECT s.product_id,
+product_name
+FROM sales s
+JOIN product p
+ON s.product_id=p.product_id
+GROUP BY s.product_id
+HAVING SUM(IF(sale_date BETWEEN '2019-01-01' AND '2019-03-31',0,1))=0
+
 """
 
 # 1113. Reported Posts
