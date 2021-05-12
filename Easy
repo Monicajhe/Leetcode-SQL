@@ -368,10 +368,14 @@ USING (product_id)
 """
 
 # 1069. Product Sales Analysis II
-
+1)
 SELECT product_id, SUM(quantity) AS total_quantity
 FROM Sales 
 GROUP BY product_id
+2)
+SELECT DISTINCT product_id, 
+       SUM(quantity) OVER (PARTITION BY product_id) AS total_quantity
+FROM Sales
 
 """
 
