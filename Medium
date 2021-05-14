@@ -70,9 +70,12 @@ FROM
 WHERE rnk = 1;
 2)
 SELECT D.Name AS Department ,E.Name AS Employee ,E.Salary 
-from Employee E, Department D 
-WHERE E.DepartmentId = D.id 
-AND (DepartmentId,Salary) in (SELECT DepartmentId,max(Salary) as max FROM Employee GROUP BY DepartmentId)
+from Employee E
+JOIN Department D 
+ON E.DepartmentId = D.id 
+WHERE (DepartmentId,Salary) in (SELECT DepartmentId,max(Salary) 
+                                FROM Employee 
+                                GROUP BY DepartmentId)
 3)
 select Department.Name as Department, e1.Name as Employee, Salary
 from Employee e1, Department
