@@ -103,13 +103,6 @@ select player_id,
        where player_id = a.player_id and event_date<=a.event_date) as "games_played_so_far"
 from Activity a
 3)
-select a1.player_id, a1.event_date, sum(a2.games_played) as "games_played_so_far"
-from
-Activity a1 left join Activity a2
-on a1.player_id = a2.player_id 
-and a2.event_date<=a1.event_date
-group by a1.player_id, a1.event_date
-4)
 select a1.player_id, a1.event_date, sum(a2.games_played) as games_played_so_far
 from Activity a1, Activity a2
 where a1.player_id = a2.player_id and a2.event_date <= a1.event_date
