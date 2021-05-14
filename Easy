@@ -1125,3 +1125,10 @@ WHERE ad_id IS NULL;
 SELECT customer_id
 FROM Customers
 WHERE year = 2021 AND revenue > 0;
+
+"""
+
+# 1853. Convert Date Format
+
+SELECT DATE_FORMAT(day, '%W, %M %e, %Y') AS day
+FROM Days;
