@@ -238,7 +238,7 @@ WHERE cnt2015 > 1 AND cntloc = 1
 """
 
 # 602. Friend Requests II: Who Has the Most Friends
-
+1)
 SELECT id1 AS id, COUNT(*) AS num
 FROM (
     SELECT requester_id AS id1, accepter_id AS id2
@@ -250,6 +250,21 @@ FROM (
 GROUP BY id1
 ORDER BY num DESC
 LIMIT 1;
+2)
+WITH t AS (SELECT accepter_id AS id, COUNT(requester_id) AS cnt
+           FROM request_accepted 
+           GROUP BY accepter_id
+           UNION ALL
+           SELECT requester_id AS id, COUNT(accepter_id) AS cnt
+           FROM request_accepted
+           GROUP BY requester_id)
+SELECT id, SUM(cnt) AS num
+FROM t 
+GROUP BY id
+ORDER BY num DESC
+LIMIT 1;
+
+"""
 
 # 608. Tree Node
 1) https://leetcode.com/problems/tree-node/discuss/219003/Need-help-!!-what's-wrong-with-my-code
