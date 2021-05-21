@@ -987,5 +987,40 @@ ORDER BY 1;
 """"
 
 1393. Capital Gain/Loss
+SELECT stock_name, 
+       SUM(IF(operation = 'Buy', - price, price)) AS capital_gain_loss
+FROM Stocks
+GROUP BY stock_name; 
+
+"""
+
+1398. Customers Who Bought Products A and B but Not C
+1)
+SELECT *
+FROM Customers 
+WHERE customer_id IN (SELECT customer_id
+                    FROM Orders
+                    GROUP BY customer_id
+                    HAVING SUM(product_name = 'A') > 0
+                    AND SUM(product_name = 'B') > 0
+                    AND SUM(product_name = 'C') = 0)
+2)
+select a.customer_id, a.customer_name
+from customers a , orders b
+where a.customer_id  = b.customer_id
+group by a.customer_id
+having sum(b.product_name="A") >0 and sum(b.product_name="B") > 0 and sum(b.product_name="C")=0
+
+3) https://leetcode.com/problems/customers-who-bought-products-a-and-b-but-not-c/discuss/563827/100-Left-Outer-Join
+SELECT c.customer_id, c.customer_name
+FROM Customers c
+JOIN Orders a ON a.customer_id = c.customer_id AND a.product_name = "A"
+JOIN Orders b ON b.customer_id = c.customer_id AND b.product_name = "B"
+LEFT OUTER JOIN Orders o on o.customer_id = c.customer_id AND o.product_name = "C"
+
+"""
+
+1421. NPV Queries
 
 
+WHERE o.order_id IS NULL
