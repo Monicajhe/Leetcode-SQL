@@ -913,5 +913,79 @@ SELECT movie_name as results FROM
 """
 
 1355. Activity Participants
+1)
+WITH t AS(
+    SELECT activity,
+           RANK() OVER (ORDER BY COUNT(id) DESC) AS rnk1,
+           RANK() OVER (ORDER BY COUNT(id)) AS rnk2
+    FROM Friends
+    GROUP BY activity)
+SELECT activity
+FROM t 
+WHERE rnk1 != 1 AND rnk2 != 1
+2)
+SELECT activity 
+FROM friends
+GROUP BY activity
+HAVING COUNT(id) > (SELECT COUNT(id) 
+                    FROM friends 
+                    GROUP BY activity 
+                    ORDER BY 1 
+                    LIMIT 1)
+AND COUNT(id) < (SELECT COUNT(id) 
+                 FROM friends 
+                 GROUP BY activity 
+                 ORDER BY 1 DESC 
+                 LIMIT 1); 
+                 
+"""                 
+
+1364. Number of Trusted Contacts of a Customer
+1)
+WITH temp AS (
+    SELECT customer_id, 
+           customer_name, 
+           COUNT(contact_name) AS contacts_cnt, 
+           SUM(CASE WHEN contact_email IN (SELECT email FROM Customers) THEN 1 ELSE 0 END) AS trusted_contacts_cnt
+    FROM Contacts c1
+    RIGHT JOIN Customers c2
+    ON c1.user_id = c2.customer_id
+    GROUP BY 1, 2)
+SELECT invoice_id, customer_name, price, contacts_cnt, trusted_contacts_cnt
+FROM temp
+RIGHT JOIN invoices 
+ON temp.customer_id = Invoices.user_id
+ORDER BY invoice_id;
+
+2)https://leetcode.com/problems/number-of-trusted-contacts-of-a-customer/discuss/562342/Easy-MS-SQL
+select
+    i.invoice_id,
+    c.customer_name,
+    i.price,
+    count(con.user_id) as contacts_cnt,
+    count(c2.email) as trusted_contacts_cnt
+from invoices i
+join customers c on c.customer_id = i.user_id
+left join contacts con on con.user_id = c.customer_id
+left join customers c2 on c2.email = con.contact_email
+group by i.invoice_id, c.customer_name, i.price
+order by i.invoice_id;
+
+3) https://leetcode.com/problems/number-of-trusted-contacts-of-a-customer/discuss/900767/MySQL-with-CTE-simpler-than-most-of-the-answers-and-beats-98
+WITH cte AS
+(SELECT user_id, count(contact_email) contacts_cnt, SUM(contact_email IN (SELECT email FROM Customers)) trusted_contacts_cnt
+FROM Contacts
+GROUP BY 1)
+SELECT i.invoice_id, c.customer_name, i.price, IFNULL(contacts_cnt, 0) contacts_cnt, IFNULL(trusted_contacts_cnt, 0) trusted_contacts_cnt
+FROM Invoices i
+LEFT JOIN Customers c
+ON i.user_id = c.customer_id
+LEFT JOIN cte
+ON i.user_id = cte.user_id
+ORDER BY 1;
+
+""""
+
+1393. Capital Gain/Loss
 
 
