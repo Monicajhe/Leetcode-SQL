@@ -1017,10 +1017,19 @@ FROM Customers c
 JOIN Orders a ON a.customer_id = c.customer_id AND a.product_name = "A"
 JOIN Orders b ON b.customer_id = c.customer_id AND b.product_name = "B"
 LEFT OUTER JOIN Orders o on o.customer_id = c.customer_id AND o.product_name = "C"
+WHERE o.order_id IS NULL;
 
 """
 
 1421. NPV Queries
 
+SELECT q.id, q.year, IFNULL(n.npv, 0) AS npv
+FROM NPV n
+RIGHT JOIN Queries q
+ON n.id = q.id AND n.year = q.year;
 
-WHERE o.order_id IS NULL
+"""
+
+1440. Evaluate Boolean Expression
+
+
