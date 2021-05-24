@@ -1031,5 +1031,158 @@ ON n.id = q.id AND n.year = q.year;
 """
 
 1440. Evaluate Boolean Expression
+SELECT e.left_operand, e.operator, e.right_operand,
+       CASE WHEN operator = '<' AND v1.value < v2.value THEN 'true'
+            WHEN operator = '>' AND v1.value > v2.value THEN 'true'
+            WHEN operator = '=' AND v1.value = v2.value THEN 'true'
+            ELSE 'false' END AS value
+FROM Variables v1
+JOIN Expressions e
+ON v1.name  = e.left_operand
+JOIN Variables v2
+ON v2.name = e.right_operand; 
+
+"""
+
+1445. Apples & Oranges
+
+SELECT sale_date,
+       SUM(IF(fruit = 'oranges', -1 * sold_num, sold_num)) AS diff
+FROM Sales
+GROUP BY sale_date
+ORDER BY sale_date;
+
+"""
+
+1454. Active Users
+
+1)https://leetcode.com/problems/active-users/discuss/642956/Simple-MySQL-solution-without-window-function
+SELECT DISTINCT a.id, (SELECT name FROM Accounts WHERE id=a.id) AS name
+FROM Logins a, Logins b
+WHERE a.id=b.id 
+AND DATEDIFF(a.login_date,b.login_date) BETWEEN 1 AND 4
+GROUP BY a.id, a.login_date
+HAVING COUNT(DISTINCT b.login_date)=4;
+
+2)
+WITH t2 AS (
+    SELECT id, 
+           name, 
+           login_date,
+           lead(login_date, 4) OVER (PARTITION BY id ORDER BY login_date) AS lead_date
+    FROM (SELECT DISTINCT id, login_date
+          FROM Logins) t
+JOIN Accounts USING (id)
+    )
+SELECT DISTINCt id, name
+FROM t2 
+WHERE DATEDIFF(lead_date, login_date) = 4;
+
+"""
+
+1459. Rectangles Area
+Alternative: replace 'AND a.x_value != b.x_value AND a.y_value != b.y_value' with 'ABS(a.x_value - b.x_value) * ABS(a.y_value - b.y_value) != 0' 
+SELECT a.id AS p1, 
+       b.id AS p2, 
+       ABS(a.x_value - b.x_value) * ABS(a.y_value - b.y_value) AS area
+FROM Points a, Points b
+WHERE a.id < b.id
+AND a.x_value != b.x_value
+AND a.y_value != b.y_value 
+ORDER BY area DESC, p1, p2;
+
+"""
+
+1468. Calculate Salaries
+1) faster 
+SELECT company_id, 
+       employee_id, 
+       employee_name,
+       ROUND(CASE WHEN MAX(salary) OVER (PARTITION BY company_id) < 1000 THEN salary
+                  WHEN MAX(salary) OVER (PARTITION BY company_id) BETWEEN 1000 AND 10000 THEN salary * (1 - 0.24) 
+                  ELSE salary * (1- 0.49) END) AS salary
+FROM salaries
+2)
+WITH t AS (
+    SELECT *,
+           MAX(salary) OVER (PARTITION BY company_id) AS max_salary,
+           CASE WHEN MAX(salary) OVER (PARTITION BY company_id) < 1000 THEN 0
+                     WHEN MAX(salary) OVER (PARTITION BY company_id) BETWEEN 1000 AND 10000 THEN 0.24
+                     ELSE 0.49 END AS tax_rate
+FROM Salaries
+    )
+SELECT company_id, employee_id, employee_name, ROUND(salary * (1 - tax_rate)) AS salary
+FROM t;
+3)
+WITH tax_multiplier AS (
+SELECT company_id,
+CASE WHEN MAX(salary) < 1000 THEN 1.0
+WHEN MAX(salary) <= 10000 THEN 0.76
+ELSE 0.51 END AS mult
+FROM Salaries
+GROUP BY company_id
+)
+SELECT s.company_id, s.employee_id, s.employee_name, ROUND(s.salary * t.mult) AS salary
+FROM Salaries s JOIN tax_multiplier t ON s.company_id = t.company_id;
+
+"""
+
+1501. Countries You Can Safely Invest In
+1)
+SELECT Country.name AS country
+FROM Country 
+JOIN Person 
+ON LEFT(Person.phone_number, 3) = Country.country_code 
+JOIN Calls 
+ON Calls.caller_id = Person.id OR Calls.callee_id = Person.id 
+GROUP BY Country.name 
+HAVING AVG(Calls.duration) > (SELECT AVG(duration)
+                              FROM Calls)
+2)
+WITH t AS (
+    SELECT caller_id AS id, duration
+    FROM calls
+    UNION ALL
+    SELECT callee_id AS id, duration
+    FROM calls
+)
+SELECT c.name AS country
+FROM t
+JOIN Person p USING (id)
+JOIN Country c
+ON c.country_code = LEFT(p.phone_number, 3)
+GROUP BY country
+HAVING AVG(duration) > (SELECT AVG(duration)
+                        FROM Calls);
+3)
+SELECT DISTINCT country 
+FROM (
+    SELECT country.name country, 
+           calls.duration,
+           AVG(calls.duration) over(partition by country.name) avg_duration,
+           AVG(calls.duration) over() avg_total
+    FROM calls  
+    JOIN person ON calls.caller_id = person.id or calls.callee_id = person.id
+    JOIN country ON LEFT(person.phone_number, 3) = country.country_code
+) t
+WHERE avg_duration > avg_total;
+
+"""
+
+1532. The Most Recent Three Orders
+SSELECT name AS customer_name, customer_id, order_id, order_date
+FROM (
+    SELECT name,
+           customer_id, 
+           order_date,
+           order_id,
+           cost,
+           RANK() OVER (PARTITION BY customer_id ORDER BY order_date DESC) AS rnk
+FROM Customers  
+JOIN Orders 
+USING (customer_id)) t 
+WHERE rnk <= 3
+ORDER BY customer_name, customer_id, order_date DESC;
+
 
 
