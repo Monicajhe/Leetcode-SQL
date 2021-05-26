@@ -1476,7 +1476,57 @@ ORDER BY 1;
 """
 
 1841. League Statistics
+1)
+WITH t AS ( 
+    SELECT t.team_name,
+           CASE WHEN t.team_id = m.home_team_id and home_team_goals > away_team_goals THEN 3
+                WHEN t.team_id = m.home_team_id and home_team_goals = away_team_goals THEN 1
+                WHEN t.team_id = m.away_team_id and home_team_goals = away_team_goals THEN 1
+                WHEN t.team_id = m.away_team_id and home_team_goals < away_team_goals THEN 3
+                ELSE 0 END as points,
+            CASE WHEN t.team_id = m.home_team_id THEN home_team_goals ELSE away_team_goals END AS goal_for,
+            CASE WHEN t.team_id = m.away_team_id THEN home_team_goals ELSE away_team_goals END AS goal_against
+    FROM teams t
+    JOIN matches m
+    ON t.team_id = m.home_team_id OR t.team_id = m.away_team_id
+    )
+SELECT team_name, 
+        COUNT(team_name) AS matches_played,
+        SUM(points) as points,
+        sum(goal_for) as goal_for,
+        sum(goal_against) as goal_against,
+        sum(goal_for-goal_against) as goal_diff
+FROM t
+GROUP BY team_name
+ORDER BY points DESC, goal_diff DESC, team_name;
 
+2) https://leetcode.com/problems/league-statistics/discuss/1226809/MySQL-fun-times
+WITH t AS (
+    SELECT t.team_name, m.home_team_id AS team_id, m.home_team_goals AS goals,
+           CASE WHEN m.home_team_goals > m.away_team_goals THEN 3
+                 WHEN m.home_team_goals = m.away_team_goals THEN 1
+                 ELSE 0 END AS points,
+           m.away_team_goals AS goal_against
+    FROM Matches m 
+    LEFT JOIN Teams t ON m.home_team_id = t.team_id
+    UNION ALL
+    SELECT t.team_name, m.away_team_id AS team_id, m.away_team_goals AS goals,
+           CASE WHEN m.away_team_goals > m.home_team_goals THEN 3
+                 WHEN m.away_team_goals = m.home_team_goals THEN 1
+                 ELSE 0 END AS points,
+           m.home_team_goals AS goal_against
+    FROM Matches m 
+    LEFT JOIN Teams t ON m.away_team_id = t.team_id
+)
+SELECT team_name,
+       COUNT(*) AS matches_played,
+       SUM(points) AS points,
+       SUM(goals) AS goal_for,
+       SUM(goal_against) AS goal_against,
+       (SUM(goals) - SUM(goal_against)) AS goal_diff
+FROM t
+GROUP BY team_name
+ORDER BY points DESC, goal_diff DESC, team_name;
 
 """
 
