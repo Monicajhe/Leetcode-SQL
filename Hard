@@ -1,1 +1,66 @@
 262. Trips and Users
+
+SELECT Request_at AS Day, 
+       ROUND(SUM(Status != 'completed') / COUNT(Id), 2) AS 'Cancellation Rate'
+FROM Trips
+JOIN Users u1 ON Client_Id = u1.Users_Id
+JOIN Users u2 ON Driver_Id = u2.Users_Id 
+WHERE u1.Banned = 'No' AND u2.Banned = 'No'
+AND Request_at BETWEEN "2013-10-01" AND "2013-10-03"
+GROUP BY Day;
+
+"""
+
+185. Department Top Three Salaries
+1)
+SELECT Department, Employee, Salary 
+FROM (
+    SELECT d.Name AS Department, 
+           e.Name AS Employee,
+           Salary,
+           DENSE_RANK() OVER (PARTITION BY d.Name ORDER BY Salary DESC) AS rnk
+    FROM Employee e
+    JOIN Department d
+    ON e.DepartmentId = d.Id
+) t
+WHERE rnk <= 3;
+
+2)
+SELECT d.Name as Department, 
+       e1.Name as Employee, 
+       e1.Salary 
+FROM Department d, Employee e1, Employee e2  
+WHERE d.Id = e1.DepartmentId and e1.DepartmentId = e2.DepartmentId 
+AND e1.Salary <= e2.Salary
+GROUP BY d.Id, e1.Name 
+HAVING COUNT(DISTINCT e2.Salary) <= 3;
+
+3) https://leetcode.com/problems/department-top-three-salaries/discuss/357461/No-window-function-No-local-variable-Easy-to-understand.-Beats-95.-MySQL
+select Department.Name as Department, Employee.Name as Employee, Salary
+from (  
+			select e1.Id as Id, count(distinct e2.Salary) as Rank
+			from Employee e1, Employee e2
+			where e1.Salary <= e2.Salary and e1.departmentId = e2.departmentId
+			group by e1.Id 
+		) r
+join Employee on Employee.Id = r.Id
+join Department on Employee.DepartmentId = Department.Id
+where r.Rank <= 3;
+
+"""
+
+569. Median Employee Salary
+1) https://leetcode.com/problems/median-employee-salary/discuss/1011485/MySQL-use-1-cte-and-2-window-function-column-very-easy-to-understand-beat-89
+WITH t AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY Company ORDER BY Salary) AS number,
+           COUNT(Salary) OVER (PARTITION BY Company) AS cnt
+    FROM Employee
+    )
+SELECT Id, Company, Salary
+FROM t 
+WHERE number BETWEEN cnt/2 AND cnt/2 + 1;
+
+"""
+
+571. Find Median Given Frequency of Numbers
