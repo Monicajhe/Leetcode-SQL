@@ -503,13 +503,11 @@ GROUP BY product_id
 HAVING MIN(sale_date) >= '2019-01-01' AND MAX(sale_date) <= '2019-03-31' 
 
 3)
-SELECT s.product_id,
-product_name
-FROM sales s
-JOIN product p
-ON s.product_id=p.product_id
-GROUP BY s.product_id
-HAVING SUM(IF(sale_date BETWEEN '2019-01-01' AND '2019-03-31',0,1))=0
+SELECT product_id, product_name 
+FROM Product 
+JOIN Sales USING (product_id)
+GROUP BY product_id
+HAVING SUM(sale_date < '2019-01-01' OR sale_date > '2019-03-31') = 0
 
 """
 
@@ -517,8 +515,9 @@ HAVING SUM(IF(sale_date BETWEEN '2019-01-01' AND '2019-03-31',0,1))=0
 
 SELECT extra AS report_reason, COUNT(DISTINCT post_id) AS report_count
 FROM Actions
-WHERE action_date = '2019-07-04' AND extra IS NOT NULL AND action = 'report'
-GROUP BY report_reason 
+WHERE action = 'report'
+AND action_date = DATE_SUB('2019-07-05', INTERVAL 1 DAY)
+GROUP BY 1
 
 """
 
