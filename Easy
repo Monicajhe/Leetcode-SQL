@@ -944,6 +944,14 @@ FROM Seller s
 LEFT JOIN Orders o on s.seller_id = o.seller_id and YEAR(sale_date) = 2020
 where o.seller_id IS NULL
 order by seller_name 
+3) if the seller made no sales use ifnull will make null to 0, otherwise those seller won't show in result 
+SELECT seller_name
+FROM Seller
+LEFT JOIN Orders 
+USING (seller_id)
+GROUP BY seller_name 
+HAVING IFNULL(SUM(YEAR(sale_date) = 2020), 0) = 0
+ORDER BY seller_name
 
 """
 
