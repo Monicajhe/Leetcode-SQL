@@ -1126,12 +1126,21 @@ ORDER BY product_id;
 """
 
 # 1809. Ad-Free Sessions
-
+1)
 SELECT p.session_id
 FROM Playback p
 LEFT JOIN Ads a
 ON p.customer_id = a.customer_id AND timestamp BETWEEN start_time AND end_time
 WHERE ad_id IS NULL;
+
+2)
+SELECT session_id 
+FROM Playback
+WHERE session_id NOT IN (
+                          SELECT session_id FROM Ads INNER JOIN Playback 
+                          ON Ads.timestamp BETWEEN Playback.start_time AND Playback.end_time
+                          AND Playback.customer_id = Ads.customer_id
+                        )
 
 """
 
