@@ -119,7 +119,7 @@ WHERE (player_id, SUBDATE(event_date, 1)) IN (SELECT player_id, MIN(event_date)
                                               FROM Activity
                                               GROUP BY player_id)
 2) https://leetcode.com/problems/game-play-analysis-iv/discuss/324851/MySQL-solution-with-STEP-BY-STEP-explanation
-SELECT ROUND(SUM(CASE WHEN a.event_date + 1 = b.event_date THEN 1 ELSE 0 END)/COUNT(DISTINCT a.player_id), 2) AS fraction 
+SELECT ROUND(SUM(a.event_date + 1 = b.event_date)/COUNT(DISTINCT a.player_id), 2) AS fraction 
 FROM (SELECT player_id, MIN(event_date) AS event_date
       FROM Activity 
       GROUP BY player_id) AS a 
