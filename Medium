@@ -409,6 +409,14 @@ WHERE (project_id, experience_years) IN (SELECT project_id, MAX(experience_years
 
 # 1098. Unpopular Books
 1)
+SELECT b.book_id, name 
+FROM Books b
+LEFT JOIN Orders o
+ON b.book_id = o.book_id
+WHERE DATEDIFF('2019-06-23', available_from) >= 30
+GROUP BY 1, 2
+HAVING SUM(IF(dispatch_date BETWEEN '2018-06-23' AND '2019-06-23', quantity, 0)) < 10;
+2)
 SELECT book_id, 
        name
 FROM Books
@@ -419,7 +427,7 @@ AND book_id NOT IN
              WHERE dispatch_date BETWEEN '2018-06-23' AND '2019-06-23'
              GROUP BY book_id
              Having sum(quantity) >= 10)
-2)
+3)
 SELECT b.book_id, b.name
 FROM Books b
 LEFT JOIN Orders o
