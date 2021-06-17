@@ -488,15 +488,16 @@ WHERE rnk = 1;
 
 # 1126. Active Businesses
 1)
-WITH t AS (SELECT event_type, AVG(occurences) AS avg_o
-           FROM Events
-           GROUP BY event_type)
+WWITH t AS (
+    SELECT event_type, AVG(occurences) AS avg
+    FROM Events
+    GROUP BY event_type
+)
 SELECT business_id
-FROM Events 
-JOIN t 
-ON t.event_type = events.event_type AND occurences > avg_o
+FROM Events e, t
+WHERE e.occurences > avg AND t.event_type = e.event_type
 GROUP BY business_id
-HAVING COUNT(business_id) > 1 
+HAVING COUNT(e.event_type) > 1
 2)
 SELECT business_id
 FROM (SELECT *, AVG(occurences) OVER (PARTITION BY event_type) AS avg_o
@@ -504,6 +505,15 @@ FROM (SELECT *, AVG(occurences) OVER (PARTITION BY event_type) AS avg_o
 WHERE occurences > avg_o
 GROUP BY business_id
 HAVING COUNT(*) > 1;
+3)
+with agged as (
+    select business_id
+    , if(occurences > avg(occurences) over (partition by event_type), 1, 0) bool_flag
+    from events
+) select business_id
+from agged
+group by business_id
+having sum(bool_flag) > 1
 
 """
 
@@ -535,9 +545,8 @@ ORDER BY id;
 SELECT user_id AS buyer_id, join_date, IFNULL(COUNT(order_id), 0) AS orders_in_2019
 FROM Users
 LEFT JOIN Orders
-ON Users.user_id = Orders.buyer_id   #If you use 'where' then those who doesn't have 2019 sale won't be joined at all
-AND YEAR(order_date) = 2019
-GROUP BY user_id;
+ON Users.user_id = Orders.buyer_id AND YEAR(order_date) = 2019  #If you use 'where' then those who doesn't have 2019 sale won't be joined at all
+GROUP BY user_id, join_date;
 2)
 WITH new AS (SELECT buyer_id, COUNT(order_id) AS orders_tot
              FROM Orders
