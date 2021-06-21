@@ -1082,12 +1082,14 @@ ORDER BY sale_date;
 1454. Active Users
 
 1)https://leetcode.com/problems/active-users/discuss/642956/Simple-MySQL-solution-without-window-function
-SELECT DISTINCT a.id, (SELECT name FROM Accounts WHERE id=a.id) AS name
-FROM Logins a, Logins b
-WHERE a.id=b.id 
-AND DATEDIFF(a.login_date,b.login_date) BETWEEN 1 AND 4
-GROUP BY a.id, a.login_date
-HAVING COUNT(DISTINCT b.login_date)=4;
+SELECT DISTINCT l1.id, A.name
+FROM Logins l1
+JOIN Logins l2
+ON l1.id = l2.id AND DATEDIFF(l2.login_date, l1.login_date) BETWEEN 1 AND 4
+JOIN Accounts A
+ON l1.id = A.id
+GROUP BY l1.id, l1.login_date
+HAVING COUNT(DISTINCT l2.login_date) = 4;
 
 2)
 WITH t2 AS (
