@@ -1082,6 +1082,7 @@ ORDER BY sale_date;
 1454. Active Users
 
 1)https://leetcode.com/problems/active-users/discuss/642956/Simple-MySQL-solution-without-window-function
+https://leetcode.com/problems/active-users/discuss/642645/MS-SQL-JOIN-AND-GROUP-BY
 SELECT DISTINCT l1.id, A.name
 FROM Logins l1
 JOIN Logins l2
