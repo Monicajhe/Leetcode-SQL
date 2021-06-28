@@ -1462,10 +1462,36 @@ OR user_id IN (SELECT user_id
                WHERE lag_contest - contest_id = 2);
                
 2) https://leetcode.com/problems/find-interview-candidates/discuss/1142921/CTE-3-times-Union-All-with-Explanation
-t3 as (select contest_id, user_id
-       from t2
-       where (contest_id+1, user_id) in (select contest_id, user_id from t2) 
-       and (contest_id+2, user_id) in (select contest_id, user_id from t2))
+WITH t1 AS (SELECT contest_id, gold_medal AS user_id, gold_medal
+            FROM Contests
+            UNION ALL
+            SELECT contest_id, silver_medal AS user_id, gold_medal
+            FROM Contests
+            UNION ALL
+            SELECT contest_id, bronze_medal AS user_id, gold_medal
+            FROM Contests),
+    t2 AS (SELECT gold_medal AS user_id
+           FROM Contests 
+           GROUP BY user_id
+           HAVING COUNT(gold_medal) >= 3),
+    t3 AS (SELECT contest_id, user_id
+           FROM t1
+           WHERE (contest_id + 1, user_id) IN (SELECT contest_id, user_id FROM t1)
+           AND (contest_id + 2, user_id) IN (SELECT contest_id, user_id FROM t1))
+SELECT name, mail
+FROM t2
+JOIN Users USING (user_id)
+UNION 
+SELECT name, mail
+FROM t3
+JOIN Users USING (user_id);
+
+Alternative:
+select name, mail
+        from users
+        where user_id in (select gold_medal from t1)
+        or user_id in (select user_id from t3);
+
 3) https://leetcode.com/problems/find-interview-candidates/discuss/1144024/MySQL-Short-and-sweet-using-lag()-function
 WITH cte AS (
     SELECT
