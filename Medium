@@ -1652,3 +1652,69 @@ FROM t t1, t t2
 WHERE t1.account_id = t2.account_id 
 AND PERIOD_DIFF(t1.date, t2.date)=1
 AND t1.suspicious = 'Y' and t2.suspicious = 'Y';
+
+"""
+
+1867. Orders With Maximum Quantity Above Average
+1) 
+WITH t AS (
+    SELECT DISTINCT order_id,
+           AVG(quantity) OVER (PARTITION BY order_id) AS avg_q,
+           MAX(quantity) OVER (PARTITION BY order_id) AS max_q
+    FROM OrdersDetails
+    )
+SELECT order_id
+FROM t 
+WHERE max_q > (SELECT MAX(avg_q)
+               FROM t)
+2)
+WITH t AS (
+    SELECT order_id,
+           AVG(quantity) AS avg_q,
+           MAX(quantity) AS max_q
+    FROM OrdersDetails
+    GROUP BY order_id
+)
+SELECT order_id
+FROM t
+WHERE max_q > (SELECT MAX(avg_q)
+               FROM t);
+3）
+SELECT order_id
+FROM OrdersDetails
+GROUP BY order_id
+HAVING MAX(quantity) > ALL (SELECT AVG(quantity) 
+                            FROM OrdersDetails
+                            GROUP BY order_id);
+
+"""
+
+1875. Group Employees of the Same Salary
+1)
+SELECT employee_id, 
+       name, 
+       salary,
+       DENSE_RANK() OVER (ORDER BY salary) AS team_id
+FROM Employees
+WHERE salary NOT IN (SELECT salary
+                     FROM Employees
+                     GROUP BY salary
+                     HAVING COUNT(employee_id) = 1)
+2)
+WITH team AS (
+    SELECT salary, ROW_NUMBER() OVER(ORDER BY salary) as team_id
+    FROM Employees
+    GROUP BY salary
+    HAVING COUNT(employee_id) >= 2
+    )
+SELECT employee_id, name, e.salary, team_id
+FROM Employees e
+JOIN team t
+ON e.salary = t.salary
+ORDER BY team_id, employee_id;
+
+"""
+
+1907. Count Salary Categories
+
+
