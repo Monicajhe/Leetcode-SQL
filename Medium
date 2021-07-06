@@ -1716,5 +1716,38 @@ ORDER BY team_id, employee_id;
 """
 
 1907. Count Salary Categories
+1) 
+WITH t1 AS (
+    SELECT account_id, 
+           CASE WHEN income < 20000 THEN 'Low Salary'
+                WHEN income BETWEEN 20000 AND 50000 THEN 'Average Salary'
+                ELSE 'High Salary' END AS category
+    FROM Accounts 
+    ),
+    t2 AS (                                   # need a table of category to make left join, prevent  those category without value in CTE from disappearing 
+        SELECT 'Low Salary' AS category
+        UNION 
+        SELECT 'Average Salary' AS category
+        UNION
+        SELECT 'High Salary' AS category
+    )                     
+SELECT t2.category, COUNT(account_id) AS accounts_count
+FROM t2
+LEFT JOIN t1 USING (category)
+GROUP BY 1
+
+2)
+SELECT 'Low Salary' AS category, SUM(income < 20000) AS accounts_count
+FROM Accounts
+UNION 
+SELECT 'Average Salary' AS category, SUM(income BETWEEN 20000 AND 50000) AS accounts_count
+FROM Accounts
+UNION
+SELECT 'High Salary' AS category, SUM(income > 50000) AS accounts_count
+FROM Accounts
+
+"""
+
+
 
 
