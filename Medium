@@ -514,14 +514,13 @@ WHERE occurences > avg_o
 GROUP BY business_id
 HAVING COUNT(*) > 1;
 3)
-with agged as (
-    select business_id
-    , if(occurences > avg(occurences) over (partition by event_type), 1, 0) bool_flag
-    from events
-) select business_id
-from agged
-group by business_id
-having sum(bool_flag) > 1
+SELECT business_id
+FROM (
+    SELECT *, AVG(occurences) OVER (PARTITION BY event_type) AS avg_occurences
+    FROM events
+    ) t
+GROUP BY business_id 
+HAVING SUM(occurences > avg_occurences) > 1;
 
 """
 
