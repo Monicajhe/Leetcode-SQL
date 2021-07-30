@@ -607,7 +607,14 @@ FROM Delivery
 WHERE (customer_id, order_date) IN (SELECT customer_id, MIN(order_date)
                                     FROM Delivery
                                     GROUP BY customer_id)
-                                    
+3)
+SELECT DISTINCT Products.product_id, IFNULL(t.new_price, 10) AS price
+FROM (SELECT *, RANK() OVER (PARTITION BY product_id ORDER BY change_date DESC) AS rnk
+      FROM Products
+      WHERE change_date <= '2019-08-16') t 
+RIGHT JOIN Products 
+ON t.product_id = Products.product_id AND rnk = 1 
+
 """
 
 1193. Monthly Transactions I
