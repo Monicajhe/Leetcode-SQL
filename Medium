@@ -834,7 +834,7 @@ ORDER BY EMPLOYEE_ID;
 """
 
 1285. Find the Start and End Number of Continuous Ranges
-
+1)
 # the difference of (log_id - num) will change whenever a log_id is skipped. The rows with same difference (log_id - num), 
 should be a continuous series. Then we just need to find the min, and max for that series as start/ end id. 
 log_id, num, difference
@@ -850,6 +850,15 @@ FROM (SELECT log_id,
              ROW_NUMBER() OVER(ORDER BY log_id) as num
       FROM Logs) a
 GROUP BY log_id - num;
+2)
+select L1.log_id as START_ID, min(L2.log_id) as END_ID
+from 
+	(select log_id from Logs 
+	where log_id-1 not in (select log_id from Logs)) L1,
+	(select log_id from Logs 
+	where log_id+1 not in (select log_id from Logs)) L2
+where L1.log_id <= L2.log_id
+group by L1.log_id
 
 """
 
