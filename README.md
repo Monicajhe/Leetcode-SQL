@@ -1,1 +1,1 @@
-Leetcode SQL questions easy and medium 
+Leetcode SQL questions
