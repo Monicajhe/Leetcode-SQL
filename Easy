@@ -1173,3 +1173,68 @@ WHERE YEAR(time_stamp) = 2020
 GROUP BY user_id;
 
 """
+
+# 1939. Users That Actively Request Confirmation Messages
+1)
+SELECT DISTINCT c1.user_id
+FROM Confirmations c1, Confirmations c2
+WHERE c1.time_stamp < c2.time_stamp
+AND c1.user_id = c2.user_id
+AND c2.time_stamp BETWEEN c1.time_stamp AND DATE_ADD(c1.time_stamp, INTERVAL 24 HOUR);
+
+2)
+SELECT DISTINCT user_id
+FROM (
+    SELECT *, LEAD(time_stamp) OVER (PARTITION BY user_id ORDER BY time_stamp) AS lead_time_stamp
+    FROM Confirmations 
+    ) t
+WHERE lead_time_stamp BETWEEN time_stamp AND DATE_ADD(time_stamp, INTERVAL 24 HOUR);
+
+"""
+
+# 1965. Employees With Missing Information
+1)
+SELECT employee_id
+FROM Employees
+LEFT JOIN Salaries
+USING (employee_id)
+WHERE salary IS NULL
+UNION 
+SELECT employee_id
+FROM Employees 
+RIGHT JOIN Salaries 
+USING (employee_id)
+WHERE name IS NULL
+ORDER BY 1;
+
+2)
+SELECT employee_id
+FROM Employees 
+WHERE employee_id NOT IN (SELECT employee_id FROM Salaries)
+UNION
+SELECT employee_id
+FROM Salaries
+WHERE employee_id NOT IN (SELECT employee_id FROM Employees)
+ORDER BY employee_id;
+
+"""
+
+# 1978. Employees Whose Manager Left the Company
+1)
+SELECT employee_id
+FROM Employees 
+WHERE salary < 30000
+AND manager_id NOT IN (SELECT employee_id FROM Employees)
+ORDER BY 1;
+
+2)
+SELECT e.employee_id
+FROM Employees e
+LEFT JOIN Employees m
+ON e.manager_id = m.employee_id
+WHERE e.salary < 30000
+AND m.employee_id IS NULL
+AND e.manager_id IS NOT NULL
+ORDER BY 1;
+
+"""
