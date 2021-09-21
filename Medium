@@ -614,6 +614,13 @@ FROM (SELECT *, RANK() OVER (PARTITION BY product_id ORDER BY change_date DESC) 
       WHERE change_date <= '2019-08-16') t 
 RIGHT JOIN Products 
 ON t.product_id = Products.product_id AND rnk = 1 
+4)
+SELECT ROUND(SUM(customer_pref_delivery_date = order_date) / COUNT(delivery_id) * 100, 2) AS immediate_percentage 
+FROM (
+    SELECT *, MIN(order_date) OVER (PARTITION BY customer_id) AS min_date
+    FROM Delivery
+) t
+WHERE order_date = min_date;
 
 """
 
