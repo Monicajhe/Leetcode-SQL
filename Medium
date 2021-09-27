@@ -965,6 +965,38 @@ SELECT movie_name as results FROM
     ORDER BY grade DESC,movie_name ASC LIMIT 1
 ) second_query; #query for the movie with the highest average rating in February
 
+3)
+select name as results
+from (select u.name, rank() over(order by count(*) desc, u.name) as rank
+      from users u inner join movie_rating r
+           on u.user_id = r.user_id
+      group by u.name)
+where rank = 1
+union
+select title
+    from (select m.title,  rank() over(order by avg(rating) desc, m.title) as rank
+          from movies m inner join movie_rating r
+               on m.movie_id = r.movie_id
+          where trunc(created_at, 'mm')='2020-02-01'
+          group by m.title)
+where rank = 1
+
+4)
+(SELECT name AS results
+FROM Movie_Rating 
+JOIN Users USING (user_id)
+GROUP BY user_id
+ORDER BY COUNT(DISTINCT movie_id) DESC, name
+LIMIT 1)
+UNION 
+(SELECT title AS results
+FROM Movie_Rating
+JOIN Movies USING (movie_id)
+WHERE DATE_FORMAT(created_at, '%Y-%m') = '2020-02'
+GROUP BY movie_id
+ORDER BY AVG(rating) DESC, title
+LIMIT 1);
+
 """
 
 1355. Activity Participants
