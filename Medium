@@ -1132,11 +1132,17 @@ WHERE o.order_id IS NULL;
 """
 
 1421. NPV Queries
-
+1)
 SELECT q.id, q.year, IFNULL(n.npv, 0) AS npv
 FROM NPV n
 RIGHT JOIN Queries q
 ON n.id = q.id AND n.year = q.year;
+
+2)
+SELECT id, year, IFNULL(npv, 0) AS npv
+FROM Queries
+LEFT JOIN NPV
+USING (id, year);
 
 """
 
