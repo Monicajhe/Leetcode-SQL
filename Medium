@@ -1084,6 +1084,16 @@ LEFT JOIN cte
 ON i.user_id = cte.user_id
 ORDER BY 1;
 
+4)
+SELECT invoice_id, customer_name, price, COUNT(contact_email) AS contacts_cnt, SUM(IF(contact_email IN (SELECT email FROM Customers), 1, 0)) AS trusted_contacts_cnt
+FROM Customers
+JOIN Invoices
+ON Invoices.user_id = Customers.customer_id
+LEFT JOIN Contacts
+ON Contacts.user_id = Customers.customer_id
+GROUP BY invoice_id, customer_name, price
+ORDER BY invoice_id
+
 """"
 
 1393. Capital Gain/Loss
