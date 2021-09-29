@@ -1399,6 +1399,16 @@ SELECT user_id,
 FROM Users
 LEFT JOIN t USING (user_id)
 GROUP BY user_id, user_name;
+3)
+SELECT user_id, user_name, IFNULL(SUM(IF(type = 'pay', -amount, amount)), 0) + credit AS credit, IF(IFNULL(SUM(IF(type = 'pay', -amount, amount)), 0) + credit > 0, 'No', 'Yes') AS credit_limit_breached
+FROM (SELECT paid_by AS user_id, 'pay' AS type, amount 
+      FROM Transactions
+      UNION ALL
+      SELECT paid_to AS user_id, 'receive' AS type, amount
+      FROM Transactions
+      ) t
+RIGHT JOIN Users USING (user_id)
+GROUP BY 1, 2;
 
 """
 
