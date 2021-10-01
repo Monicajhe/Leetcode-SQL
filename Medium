@@ -1744,7 +1744,12 @@ SELECT DISTINCT account_id
 FROM t
 WHERE (account_id, month + 1) IN (SELECT account_id, month
                                   FROM t);
-				  
+
+Alternative: SELECT DISTINCT t1.account_id
+             FROM t t1, t t2
+             WHERE t1.account_id = t2.account_id 
+             AND t1.month + 1 = t2.month
+
 2)
 WITH t1 AS (
     SELECT account_id, MONTH(day) AS month, SUM(amount) AS total
