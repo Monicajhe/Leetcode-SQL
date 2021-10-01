@@ -1888,6 +1888,59 @@ FROM Accounts
 
 """
 
+1934. Confirmation Rate
 
+SELECT s.user_id, IFNULL(ROUND(SUM(action = 'confirmed') / COUNT(action), 2), 0) AS confirmation_rate
+FROM Signups s
+LEFT JOIN Confirmations c
+USING (user_id)
+GROUP BY s.user_id;
 
+"""
+
+1949. Strong Friendship
+
+WITH t AS (
+SELECT user1_id AS id, user2_id AS friend_id
+FROM Friendship
+UNION ALL
+SELECT user2_id AS id, user1_id AS friend_id
+FROM Friendship
+    )
+SELECT f.user1_id, f.user2_id, COUNT(*) AS common_friend
+FROM Friendship f, t t1, t t2
+WHERE f.user1_id = t1.id 
+AND f.user2_id = t2.id
+AND t1.friend_id = t2.friend_id
+GROUP BY 1, 2 
+HAVING COUNT(*) >= 3;
+
+"""
+
+1951. All the Pairs With the Maximum Number of Common Followers
+1)
+WITH t AS (
+    SELECT r1.user_id AS user1_id, r2.user_id AS user2_id, COUNT(*) AS common
+    FROM Relations r1, Relations r2
+    WHERE r1.user_id < r2.user_id
+    AND r1.follower_id = r2.follower_id 
+    GROUP BY user1_id, user2_id
+    )
+SELECT user1_id, user2_id
+FROM t
+WHERE common = (SELECT MAX(common)
+                FROM t);
+
+2)
+SELECT user1_id, user2_id
+FROM(
+    SELECT r1.user_id AS user1_id, r2.user_id AS user2_id, DENSE_RANK() OVER (ORDER BY COUNT(*) DESC) rnk 
+    FROM Relations r1, Relations r2
+    WHERE r1.user_id < r2.user_id AND r1.follower_id = r2.follower_id
+    GROUP BY r1.user_id, r2.user_id) temp
+    WHERE rnk=1;
+    
+"""
+
+1988. Find Cutoff Score for Each School
 
