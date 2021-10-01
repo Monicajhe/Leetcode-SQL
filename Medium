@@ -1834,6 +1834,12 @@ WHERE salary NOT IN (SELECT salary
                      FROM Employees
                      GROUP BY salary
                      HAVING COUNT(employee_id) = 1)
+Alternative:
+WHERE salary IN (SELECT salary
+                 FROM Employees
+                 GROUP BY Salary
+                 HAVING COUNT(employee_id) > 1)
+		 
 2)
 WITH team AS (
     SELECT salary, ROW_NUMBER() OVER(ORDER BY salary) as team_id
