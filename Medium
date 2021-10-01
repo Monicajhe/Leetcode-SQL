@@ -1734,6 +1734,18 @@ ORDER BY points DESC, goal_diff DESC, team_name;
 
 1843. Suspicious Bank Accounts
 1)
+WITH t AS (SELECT account_id, DATE_FORMAT(day, '%Y%m') AS month, SUM(amount) AS total, max_income
+           FROM Transactions
+           JOIN Accounts USING (account_id)
+           WHERE type = 'Creditor'
+           GROUP BY 1, 2
+           HAVING total > max_income)
+SELECT DISTINCT account_id
+FROM t
+WHERE (account_id, month + 1) IN (SELECT account_id, month
+                                  FROM t);
+				  
+2)
 WITH t1 AS (
     SELECT account_id, MONTH(day) AS month, SUM(amount) AS total
     FROM Transactions
@@ -1753,7 +1765,7 @@ FROM t2
 WHERE lead_month - month = 1
 AND lead_total > max_income
 AND total > max_income;
-2)
+3)
 WITH t AS (
     SELECT account_id, 
            DATE_FORMAT(day,'%Y%m') AS date, 
