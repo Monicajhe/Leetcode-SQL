@@ -1,3 +1,25 @@
+# 176. Second Highest Salary
+1)/* the first select with out FROM is to return null if no match is found. Some databases may not support it. */
+SELECT IFNULL((SELECT DISTINCT Salary 
+               FROM Employee 
+               ORDER BY Salary DESC
+               LIMIT 1, 1), null) AS SecondHighestSalary
+
+2)/* Using MAX() will return a NULL if the value doesn't exist. */
+SELECT MAX(Salary) AS SecondHighestSalary
+FROM Employee 
+WHERE Salary < (SELECT MAX(Salary)
+                FROM Employee);
+
+3)
+SELECT IFNULL
+   ((SELECT DISTINCT Salary
+     FROM (SELECT Salary, DENSE_RANK() OVER (ORDER BY Salary DESC) AS rnk
+           FROM Employee) t      
+     WHERE rnk = 2), null) AS SecondHighestSalary
+     
+"""
+
 # 177. Nth Highest Salary
 1) https://leetcode.com/problems/nth-highest-salary/discuss/1013080/Mysql-%3A-Order-by-Limit
 CREATE FUNCTION getNthHighestSalary(N INT) RETURNS INT
