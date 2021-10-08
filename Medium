@@ -33,6 +33,7 @@ SET N = N - 1;
       LIMIT 1 OFFSET N
   );
 END
+
 2)
 CREATE FUNCTION getNthHighestSalary(N INT) RETURNS INT
 BEGIN
@@ -51,6 +52,7 @@ END
 1)
 SELECT Score AS score, DENSE_RANK() OVER (ORDER BY Score DESC) AS 'rank'
 FROM Scores
+
 2) https://leetcode.com/problems/rank-scores/discuss/456610/MySQL-Two-Simple-Solutions-and-Explanations-for-Beginners
 SELECT S.Score, COUNT(S2.Score) AS 'Rank'
 FROM Scores S, (SELECT DISTINCT Score FROM Scores) S2
@@ -66,6 +68,7 @@ SELECT DISTINCT l2.Num AS ConsecutiveNums
 FROM Logs l1, Logs l2, Logs l3
 WHERE l2.Id - l1.Id = 1 AND l3.Id - l2.Id = 1
 AND l1.Num = l2.Num AND l2.Num = l3.Num;
+
 2)
 SELECT DISTINCT Num AS ConsecutiveNums
 FROM Logs 
