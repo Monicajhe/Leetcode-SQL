@@ -726,28 +726,21 @@ GROUP BY month, country;
 
 1212. Team Scores in Football Tournament
 1)
-WITH temp AS (
-    SELECT host_team AS team_id, 
-    SUM(CASE WHEN host_goals > guest_goals THEN 3
-             WHEN host_goals = guest_goals THEN 1
-             ELSE 0 END) AS points
-    FROM Matches 
-    GROUP BY host_team
-    UNION ALL
-    SELECT guest_team AS team_id, 
-           SUM(CASE WHEN guest_goals > host_goals THEN 3
-           WHEN guest_goals = host_goals THEN 1
-           ELSE 0 END) AS points
-    FROM Matches
-    GROUP BY guest_team
-)
-    
-SELECT t.team_id, team_name, IFNULL(SUM(points), 0) AS num_points
-FROM Teams t 
-LEFT JOIN temp
+SELECT team_id, 
+       team_name, 
+       SUM(CASE WHEN goal_for > goal_against THEN 3
+                WHEN goal_for = goal_against THEN 1
+                ELSE 0 END) AS num_points
+FROM (SELECT host_team AS team_id, host_goals AS goal_for, guest_goals AS goal_against
+      FROM Matches
+      UNION ALL
+      SELECT guest_team AS team_id, guest_goals AS goal_for, host_goals AS goal_against
+      FROM Matches) t
+RIGHT JOIN Teams
 USING (team_id)
 GROUP BY 1, 2
-ORDER BY num_points DESC, 1;
+ORDER BY num_points DESC, team_id;
+
 2)
 SELECT team_id, team_name,
 SUM(
@@ -761,6 +754,7 @@ FROM Teams t
 LEFT JOIN Matches m ON t.team_id = m.host_team OR t.team_id = m.guest_team
 GROUP BY team_id, team_name
 ORDER BY num_points DESC, team_id;
+
 3)
 select team_id, team_name,
 sum(case when team_id = host_team and host_goals > guest_goals then 3 else 0 end) +
