@@ -1491,15 +1491,13 @@ SUM(duration) as total_duration
 FROM Calls
 GROUP BY person1,person2;
 2)
-WITH t AS (
-    SELECT *
-    FROM Calls 
-    UNION ALL
-    SELECT to_id AS from_id, from_id AS to_id, duration
-    FROM Calls)
-SELECT from_id AS person1, to_id AS person2, COUNT(*) AS call_count, SUM(duration) AS total_duration
-FROM t 
-WHERE from_id < to_id
+SELECT person1, person2, COUNT(*) AS call_count, SUM(duration) AS total_duration
+FROM (SELECT from_id AS person1, to_id AS person2, duration
+      FROM Calls
+      UNION ALL 
+      SELECT to_id AS person1, from_id AS person2, duration
+      FROM Calls) t
+WHERE person1 < person2
 GROUP BY 1, 2;
 3)
 SELECT CASE WHEN from_id > to_id THEN to_id
