@@ -2013,12 +2013,12 @@ GROUP BY 1, 2;
 
 2020. Number of Accounts That Did Not Stream
 1) Alternative: end_date >= '2021-01-01'
-SELECT COUNT(s1.account_id) AS accounts_count
-FROM Subscriptions s1
-JOIN Streams s2
-ON s1.account_id = s2.account_id 
-AND YEAR(end_date) >= 2021
-AND YEAR(stream_date) != 2021;
+SELECT COUNT(account_id) AS accounts_count
+FROM Subscriptions
+JOIN Streams 
+USING (account_id)
+WHERE YEAR(end_date) >= 2021
+AND (YEAR(stream_date) != 2021)
 
 2)
 SELECT COUNT(account_id) AS accounts_count
@@ -2028,4 +2028,15 @@ AND account_id NOT IN (SELECT account_id
                        FROM Streams
                        WHERE YEAR(stream_date) = 2021);
 		       
+"""
+
+2041. Accepted Candidates From the Interviews
+SELECT candidate_id
+FROM Candidates
+JOIN Rounds
+USING (interview_id)
+WHERE years_of_exp >= 2
+GROUP BY candidate_id
+HAVING SUM(score) > 15;
+
 """
