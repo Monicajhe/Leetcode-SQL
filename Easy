@@ -805,14 +805,13 @@ WHERE program_date LIKE '2020-06%' AND Kids_content = 'Y' AND content_type = 'Mo
 
 # 1511. Customer Order Frequency
 1)
-SELECT c.customer_id, c.name
-FROM Product p
-JOIN Orders o USING (product_id)
-JOIN Customers c USING (customer_id)
-WHERE o.order_date LIKE '2020-06%' OR o.order_date LIKE '2020-07%'
-GROUP BY c.customer_id
-HAVING SUM(IF(o.order_date LIKE '2020-06%', o.quantity * p.price, 0)) >= 100
-AND SUM(IF(o.order_date LIKE '2020-07%', o.quantity * p.price, 0)) >= 100 
+SELECT customer_id, name 
+FROM Customers
+JOIN Orders USING (customer_id)
+JOIN Product USING (product_id)
+GROUP BY 1,2
+HAVING SUM(IF(LEFT(order_date, 7) = '2020-06', price * quantity, 0)) >= 100
+AND SUM(IF(LEFT(order_date, 7) = '2020-07', price * quantity, 0)) >= 100; 
 2)
 WITH cte AS (
 SELECT o.customer_id, 
